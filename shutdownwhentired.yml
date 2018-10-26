@@ -1,0 +1,17 @@
+---
+- hosts: ansible-exercise-hosts
+  remote_user: root
+  gather_facts: true
+  become: root
+  tasks:
+  - name: ensure apache is at the latest version
+    yum:
+      name: httpd
+      state: latest
+  - name: ensure apache is running
+    service:
+      name: httpd
+      state: started
+  - name: shutdown if system has been running for over 1.5 hours
+    command: /usr/sbin/shutdown -h now
+    when: ansible_uptime_seconds > 5400

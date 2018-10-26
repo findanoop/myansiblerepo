@@ -1,0 +1,33 @@
+---
+#part of learning, there may be some conflicting tasks.
+- hosts: ansible-exercise-hosts
+  remote_user: root
+  gather_facts: true
+  become: root
+  tasks:
+  - name: ensure apache is at the latest version
+    yum:
+      name: httpd
+      state: latest
+  - name: write out the apache configuration file
+    template:
+      src: /var/crash/httpd.conf
+      dest: /etc/httpd/conf/httpd.conf
+    notify:
+    - restart apache
+  - name: ensure apache is running
+    service:
+      name: httpd
+      state: started
+  - name: ensure sssd is running
+    service:
+      name: sssd
+      state: started
+  - name: shutdown httpd after 30 minutes
+    command: systemctl stop httpd
+    when: ansible_uptime_seconds > 1800
+  handlers:
+  - name: restart apache
+    service:
+      name: httpd
+      state: restarted

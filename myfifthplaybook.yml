@@ -1,0 +1,29 @@
+---
+- hosts: all
+  remote_user: root
+  become: root
+  tasks:
+  - name: check if a process master1 is running
+    shell: ps aux |grep -v grep |grep -c -i master1
+    register: master1
+    ignore_errors: true
+
+  - name: check if a process sec1 is running
+    shell: ps aux |grep -v grep |grep -c -i sec1
+    register: sec1
+    ignore_errors: true
+
+  - name: quit if master1 is running
+    fail: msg="master is running"
+    when: master1.stdout > "0" 
+
+  - name: quit if sec1 is running
+    fail: msg="sec is running"
+    when: sec1.stdout > "0"
+  
+  - name: tail the messages file
+    shell: tail -100 /var/log/messages
+    register: output
+
+  - debug:  var=output.stdout_lines
+
